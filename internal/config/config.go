@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 )
 
 const (
@@ -14,12 +15,20 @@ type Config struct {
 	CurrentUserName string `json:"current_user_name"`
 }
 
+func (cfg *Config) SetUser(userName string) error {
+	cfg.CurrentUserName = userName
+	return write(cfg)
+}
+
 func getConfigFilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return homeDir + "/" + configFileName, nil
+	// this is useful because not always sep is "/"
+	// depends on the OS. thins utilty takes care of that.
+	filePath := filepath.Join(homeDir, configFileName)
+	return filePath, nil
 }
 
 func Read() (*Config, error) {
@@ -41,19 +50,16 @@ func Read() (*Config, error) {
 	return &gatorConfig, nil
 }
 
-func (cfg *Config) SetUser() error {
+func write(cfg *Config) error {
 	// now that we have config struct already set
 	// we need to update the json file.
 	bytes, err := json.Marshal(cfg)
 	if err != nil {
 		return err
 	}
-
 	configFilePath, err := getConfigFilePath()
 	if err != nil {
 		return err
 	}
-	os.WriteFile(configFilePath, bytes, os.FileMode(0644))
-
-	return nil
+	return os.WriteFile(configFilePath, bytes, os.FileMode(0644))
 }
