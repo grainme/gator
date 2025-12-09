@@ -42,7 +42,10 @@ func main() {
 		log.Fatalf("error registering register command: %v", err)
 	}
 	if err := commands.Register("reset", internal.HandlerReset); err != nil {
-		log.Fatalf("error registering register command: %v", err)
+		log.Fatalf("error registering reset command: %v", err)
+	}
+	if err := commands.Register("users", internal.HandlerGetUsers); err != nil {
+		log.Fatalf("error registering users command: %v", err)
 	}
 
 	if len(os.Args) < 2 {

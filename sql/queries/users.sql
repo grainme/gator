@@ -15,3 +15,7 @@ WHERE name=$1;
 
 -- name: DeleteUsers :execrows
 DELETE FROM users;
+
+
+-- name: GetUsers :many
+SELECT * FROM users;
