@@ -53,6 +53,9 @@ func main() {
 	if err := commands.Register("addfeed", internal.HandlerAddFeed); err != nil {
 		log.Fatalf("error fetching RSS feed: %v", err)
 	}
+	if err := commands.Register("feeds", internal.HandlerGetFeeds); err != nil {
+		log.Fatalf("error fetching RSS feed: %v", err)
+	}
 
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "error: command name is missing")

@@ -1,4 +1,24 @@
-### General structure of the XML file
+### what is this?
+i'm building an RSS feed aggregator in Go!
+
+it's a CLI tool that allows users to:
+- add RSS feeds from across the internet to be collected
+- store the collected posts in a PostgreSQL database
+- follow and unfollow RSS feeds that other users have added
+- view summaries of the aggregated posts in the terminal, with a link to the full post
+
+
+### why?
+i'm learning go because i need it for 95 [check it out](https://95ninefive.dev)
+
+- learning how to integrate a Go application with a PostgreSQL database
+- practicing SQL to query and migrate a database (using sqlc and goose)
+- learning how to write a long-running service that continuously fetches new posts from RSS feeds and stores them in the database
+
+
+### NOTES (for me)
+
+> general structure
 
 ```XML
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
