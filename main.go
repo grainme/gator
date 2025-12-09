@@ -47,6 +47,12 @@ func main() {
 	if err := commands.Register("users", internal.HandlerGetUsers); err != nil {
 		log.Fatalf("error registering users command: %v", err)
 	}
+	if err := commands.Register("agg", internal.HandlerAggregator); err != nil {
+		log.Fatalf("error fetching RSS feed: %v", err)
+	}
+	if err := commands.Register("addfeed", internal.HandlerAddFeed); err != nil {
+		log.Fatalf("error fetching RSS feed: %v", err)
+	}
 
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "error: command name is missing")
