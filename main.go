@@ -48,13 +48,19 @@ func main() {
 		log.Fatalf("error registering users command: %v", err)
 	}
 	if err := commands.Register("agg", internal.HandlerAggregator); err != nil {
-		log.Fatalf("error fetching RSS feed: %v", err)
+		log.Fatalf("error registering agg command: %v", err)
 	}
 	if err := commands.Register("addfeed", internal.HandlerAddFeed); err != nil {
-		log.Fatalf("error fetching RSS feed: %v", err)
+		log.Fatalf("error registering addfeed command: %v", err)
 	}
 	if err := commands.Register("feeds", internal.HandlerGetFeeds); err != nil {
-		log.Fatalf("error fetching RSS feed: %v", err)
+		log.Fatalf("error registering feeds command: %v", err)
+	}
+	if err := commands.Register("follow", internal.HandlerFollow); err != nil {
+		log.Fatalf("error registering follow command: %v", err)
+	}
+	if err := commands.Register("following", internal.HandlerFollowing); err != nil {
+		log.Fatalf("error registering following command: %v", err)
 	}
 
 	if len(os.Args) < 2 {
