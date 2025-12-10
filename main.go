@@ -50,17 +50,20 @@ func main() {
 	if err := commands.Register("agg", internal.HandlerAggregator); err != nil {
 		log.Fatalf("error registering agg command: %v", err)
 	}
-	if err := commands.Register("addfeed", internal.HandlerAddFeed); err != nil {
+	if err := commands.Register("addfeed", internal.MiddlewareLoggedIn(internal.HandlerAddFeed)); err != nil {
 		log.Fatalf("error registering addfeed command: %v", err)
 	}
 	if err := commands.Register("feeds", internal.HandlerGetFeeds); err != nil {
 		log.Fatalf("error registering feeds command: %v", err)
 	}
-	if err := commands.Register("follow", internal.HandlerFollow); err != nil {
+	if err := commands.Register("follow", internal.MiddlewareLoggedIn(internal.HandlerFollow)); err != nil {
 		log.Fatalf("error registering follow command: %v", err)
 	}
-	if err := commands.Register("following", internal.HandlerFollowing); err != nil {
+	if err := commands.Register("following", internal.MiddlewareLoggedIn(internal.HandlerFollowing)); err != nil {
 		log.Fatalf("error registering following command: %v", err)
+	}
+	if err := commands.Register("unfollow", internal.MiddlewareLoggedIn(internal.HandlerUnfollow)); err != nil {
+		log.Fatalf("error registering unfollow command: %v", err)
 	}
 
 	if len(os.Args) < 2 {

@@ -9,15 +9,9 @@ import (
 	"github.com/grainme/gator/internal/database"
 )
 
-func HandlerFollow(s *State, cmd Command) error {
+func HandlerFollow(s *State, cmd Command, currentUser database.User) error {
 	if len(cmd.Args) < 1 {
 		return fmt.Errorf("usage: %s <url>", cmd.Name)
-	}
-
-	username := s.Cfg.CurrentUserName
-	user, err := s.Db.GetUser(context.Background(), username)
-	if err != nil {
-		return err
 	}
 
 	feedURL := cmd.Args[0]
@@ -30,7 +24,7 @@ func HandlerFollow(s *State, cmd Command) error {
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		UserID:    user.ID,
+		UserID:    currentUser.ID,
 		FeedID:    feed.ID,
 	}
 	createdFeedFollow, err := s.Db.CreateFeedFollow(context.Background(), params)
