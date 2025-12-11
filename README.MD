@@ -50,3 +50,5 @@ go version
 </channel>
 </rss>
 ```
+
+> running this app will create a hidden file named .gatorconfig.json in your home directory. this is used to track the username you provide (or change it) and the database URL.
