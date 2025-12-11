@@ -1,5 +1,5 @@
 ### what is this?
-i'm building an RSS feed aggregator in Go!
+gator is a command-line RSS reader written in Go. it fetches feeds, stores them in a Postgres database and provides commands to manage feeds and read posts.
 
 it's a CLI tool that allows users to:
 - add RSS feeds from across the internet to be collected
@@ -16,8 +16,17 @@ i'm learning go because i need it for 95 [check it out](https://95ninefive.dev)
 - learning how to write a long-running service that continuously fetches new posts from RSS feeds and stores them in the database
 
 
-### NOTES (for me)
+## pre-requisites
+- download and install Go
+- verify the installation:
+```sh
+go version
+```
+- start Postgres and create a database (name it gator)
+- install the Gator CLI via `go install` or clone this project and use `go build`
 
+
+### notes (for me)
 > general structure
 
 ```XML
