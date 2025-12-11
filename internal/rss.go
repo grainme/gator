@@ -23,7 +23,7 @@ type RSSItem struct {
 	PubDate     string `xml:"pubDate"`
 }
 
-func fetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
+func FetchFeed(ctx context.Context, feedURL string) (*RSSFeed, error) {
 	// body is nil, because we don't need to send something with the request
 	// and that's usually the case with GET requests.
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, feedURL, nil)

@@ -10,7 +10,7 @@ func HandlerGetFeeds(s *State, _ Command) error {
 	if err != nil {
 		return err
 	}
-	
+
 	for _, feed := range feeds {
 		user, err := s.Db.GetUserById(context.Background(), feed.UserID)
 		if err != nil {
@@ -18,6 +18,8 @@ func HandlerGetFeeds(s *State, _ Command) error {
 		}
 		fmt.Println(feed.Name, feed.Url, user.Name)
 	}
-	
+
 	return nil
 }
+
+

@@ -7,26 +7,28 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 const createFeedFollow = `-- name: CreateFeedFollow :one
-WITH inserted_feed_follow AS (
-    INSERT INTO feed_follows (id, created_at, updated_at, user_id, feed_id)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING id, created_at, updated_at, user_id, feed_id
-)
+WITH
+  inserted_feed_follow AS (
+    INSERT INTO
+      feed_follows (id, created_at, updated_at, user_id, feed_id)
+    VALUES
+      ($1, $2, $3, $4, $5) RETURNING id, created_at, updated_at, user_id, feed_id
+  )
 SELECT
-    inserted_feed_follow.id, inserted_feed_follow.created_at, inserted_feed_follow.updated_at, inserted_feed_follow.user_id, inserted_feed_follow.feed_id,
-    feeds.name as feedName,
-    users.name as userName
-FROM inserted_feed_follow
-INNER JOIN feeds
-ON feeds.id = inserted_feed_follow.feed_id
-INNER JOIN users
-ON users.id = inserted_feed_follow.user_id
+  inserted_feed_follow.id, inserted_feed_follow.created_at, inserted_feed_follow.updated_at, inserted_feed_follow.user_id, inserted_feed_follow.feed_id,
+  feeds.name as feedName,
+  users.name as userName
+FROM
+  inserted_feed_follow
+  INNER JOIN feeds ON feeds.id = inserted_feed_follow.feed_id
+  INNER JOIN users ON users.id = inserted_feed_follow.user_id
 `
 
 type CreateFeedFollowParams struct {
@@ -70,8 +72,9 @@ func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowPara
 
 const deleteByUserIdAndFeedId = `-- name: DeleteByUserIdAndFeedId :execrows
 DELETE FROM feed_follows
-WHERE user_id = $1
-AND feed_id = $2
+WHERE
+  user_id = $1
+  AND feed_id = $2
 `
 
 type DeleteByUserIdAndFeedIdParams struct {
@@ -88,26 +91,30 @@ func (q *Queries) DeleteByUserIdAndFeedId(ctx context.Context, arg DeleteByUserI
 }
 
 const getFeedFollowByFeedId = `-- name: GetFeedFollowByFeedId :one
-SELECT feed_follows.id, feed_follows.created_at, feed_follows.updated_at, feed_follows.user_id, feed_id, feeds.id, feeds.created_at, feeds.updated_at, name, url, feeds.user_id, feeds.name as feedName
-FROM feed_follows
-INNER JOIN feeds
-ON feed_follows.feed_id = feeds.id
-WHERE feed_follows.feed_id = $1
+SELECT
+  feed_follows.id, feed_follows.created_at, feed_follows.updated_at, feed_follows.user_id, feed_id, feeds.id, feeds.created_at, feeds.updated_at, name, url, feeds.user_id, last_fetched_at,
+  feeds.name as feedName
+FROM
+  feed_follows
+  INNER JOIN feeds ON feed_follows.feed_id = feeds.id
+WHERE
+  feed_follows.feed_id = $1
 `
 
 type GetFeedFollowByFeedIdRow struct {
-	ID          uuid.UUID
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	UserID      uuid.UUID
-	FeedID      uuid.UUID
-	ID_2        uuid.UUID
-	CreatedAt_2 time.Time
-	UpdatedAt_2 time.Time
-	Name        string
-	Url         string
-	UserID_2    uuid.UUID
-	Feedname    string
+	ID            uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	UserID        uuid.UUID
+	FeedID        uuid.UUID
+	ID_2          uuid.UUID
+	CreatedAt_2   time.Time
+	UpdatedAt_2   time.Time
+	Name          string
+	Url           string
+	UserID_2      uuid.UUID
+	LastFetchedAt sql.NullTime
+	Feedname      string
 }
 
 func (q *Queries) GetFeedFollowByFeedId(ctx context.Context, feedID uuid.UUID) (GetFeedFollowByFeedIdRow, error) {
@@ -125,14 +132,19 @@ func (q *Queries) GetFeedFollowByFeedId(ctx context.Context, feedID uuid.UUID) (
 		&i.Name,
 		&i.Url,
 		&i.UserID_2,
+		&i.LastFetchedAt,
 		&i.Feedname,
 	)
 	return i, err
 }
 
 const getFeedFollowsForUser = `-- name: GetFeedFollowsForUser :many
-SELECT id, created_at, updated_at, user_id, feed_id FROM feed_follows
-WHERE user_id = $1
+SELECT
+  id, created_at, updated_at, user_id, feed_id
+FROM
+  feed_follows
+WHERE
+  user_id = $1
 `
 
 func (q *Queries) GetFeedFollowsForUser(ctx context.Context, userID uuid.UUID) ([]FeedFollow, error) {

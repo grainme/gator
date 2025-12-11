@@ -65,6 +65,9 @@ func main() {
 	if err := commands.Register("unfollow", internal.MiddlewareLoggedIn(internal.HandlerUnfollow)); err != nil {
 		log.Fatalf("error registering unfollow command: %v", err)
 	}
+	if err := commands.Register("browse", internal.MiddlewareLoggedIn(internal.HandlerBrowse)); err != nil {
+		log.Fatalf("error registering browse command: %v", err)
+	}
 
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "error: command name is missing")
