@@ -10,8 +10,8 @@ import (
 )
 
 func HandlerLogin(s *State, cmd Command) error {
-	if len(cmd.Args) == 0 {
-		return fmt.Errorf("usage: %s <name>", cmd.Name)
+	if len(cmd.Args) < 1 {
+		return fmt.Errorf("usage: login <name>")
 	}
 
 	username := cmd.Args[0]
@@ -30,8 +30,8 @@ func HandlerLogin(s *State, cmd Command) error {
 }
 
 func HandlerRegister(s *State, cmd Command) error {
-	if len(cmd.Args) == 0 {
-		return fmt.Errorf("usage: %s <name>", cmd.Name)
+	if len(cmd.Args) < 1 {
+		return fmt.Errorf("usage: register <name>")
 	}
 
 	name := cmd.Args[0]
@@ -50,7 +50,7 @@ func HandlerRegister(s *State, cmd Command) error {
 
 	dbUser, err := s.Db.CreateUser(context.Background(), user)
 	if err != nil {
-		return fmt.Errorf("couldn't create a user in the DB: %w\n", err)
+		return fmt.Errorf("failed to create user %q: %w", name, err)
 	}
 
 	// this edit this file ~/.gatorconfig.json
@@ -63,7 +63,11 @@ func HandlerRegister(s *State, cmd Command) error {
 	return nil
 }
 
-func HandlerReset(s *State, _ Command) error {
+func HandlerReset(s *State, cmd Command) error {
+	if len(cmd.Args) > 0 {
+		return fmt.Errorf("usage: reset")
+	}
+
 	rowsDeleted, err := s.Db.DeleteUsers(context.Background())
 	if err != nil {
 		return fmt.Errorf("could not delete all users from the db: %v", err)
@@ -73,7 +77,11 @@ func HandlerReset(s *State, _ Command) error {
 	return nil
 }
 
-func HandlerGetUsers(s *State, _ Command) error {
+func HandlerGetUsers(s *State, cmd Command) error {
+	if len(cmd.Args) > 0 {
+		return fmt.Errorf("usage: users")
+	}
+
 	dbUsers, err := s.Db.GetUsers(context.Background())
 	if err != nil {
 		return fmt.Errorf("failed to retrieve users from the database: %v", err)

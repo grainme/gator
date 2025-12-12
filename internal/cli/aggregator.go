@@ -2,23 +2,24 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"strings"
+	"log"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/grainme/gator/internal/database"
 	"github.com/grainme/gator/internal/rss"
+	"github.com/lib/pq"
 )
 
 func HandlerAggregator(s *State, cmd Command) error {
-	if len(cmd.Args) != 1 {
-		return fmt.Errorf("usage: %s <url>", cmd.Name)
+	if len(cmd.Args) < 1 {
+		return fmt.Errorf("usage: agg <time_between_reqs>")
 	}
 
 	timeBetweenReqs, err := time.ParseDuration(cmd.Args[0])
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid duration format: %w", err)
 	}
 	fmt.Printf("Collecting feeds every %s...\n", timeBetweenReqs)
 
@@ -46,7 +47,7 @@ func ScrapeFeeds(s *State) error {
 
 	feedItems, err := rss.FetchFeed(context.Background(), feed.Url)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to fetch feed from %q: %w", feed.Url, err)
 	}
 
 	// convert pubDate (string) to time
@@ -57,7 +58,7 @@ func ScrapeFeeds(s *State) error {
 			return err
 		}
 		post := database.CreatePostParams{
-			ID:          uuid.New(),
+			// ID:          uuid.New(),
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
 			Title:       item.Title,
@@ -65,10 +66,14 @@ func ScrapeFeeds(s *State) error {
 			PublishedAt: publishedAt,
 			FeedID:      feed.ID,
 		}
+
 		_, err = s.Db.CreatePost(context.Background(), post)
 		if err != nil {
-			if !strings.Contains(err.Error(), "duplicate") {
-				return err
+			// unique_violation (e.g: duplicate)
+			var pqErr *pq.Error
+			if errors.As(err, &pqErr) && pqErr.Code == "23505" {
+				log.Printf("Post already exists, skipping: %s", item.Link)
+				continue
 			}
 		}
 	}

@@ -9,7 +9,11 @@ import (
 	"github.com/grainme/gator/internal/database"
 )
 
-func HandlerGetFeeds(s *State, _ Command) error {
+func HandlerGetFeeds(s *State, cmd Command) error {
+	if len(cmd.Args) > 0 {
+		return fmt.Errorf("usage: feeds")
+	}
+
 	feeds, err := s.Db.GetAllFeeds(context.Background())
 	if err != nil {
 		return err
@@ -28,7 +32,7 @@ func HandlerGetFeeds(s *State, _ Command) error {
 
 func HandlerAddFeed(s *State, cmd Command, currentUser database.User) error {
 	if len(cmd.Args) < 2 {
-		return fmt.Errorf("usage: addfeed <feed_name> <feed_url>\n")
+		return fmt.Errorf("usage: addfeed <name> <url>")
 	}
 
 	feedName := cmd.Args[0]
@@ -65,7 +69,7 @@ func HandlerAddFeed(s *State, cmd Command, currentUser database.User) error {
 
 func HandlerFollow(s *State, cmd Command, currentUser database.User) error {
 	if len(cmd.Args) < 1 {
-		return fmt.Errorf("usage: %s <url>", cmd.Name)
+		return fmt.Errorf("usage: follow <url>")
 	}
 
 	feedURL := cmd.Args[0]
@@ -90,7 +94,11 @@ func HandlerFollow(s *State, cmd Command, currentUser database.User) error {
 	return nil
 }
 
-func HandlerFollowing(s *State, _ Command, currentUser database.User) error {
+func HandlerFollowing(s *State, cmd Command, currentUser database.User) error {
+	if len(cmd.Args) > 0 {
+		return fmt.Errorf("usage: following")
+	}
+
 	feedFollows, err := s.Db.GetFeedFollowsForUser(context.Background(), currentUser.ID)
 	if err != nil {
 		return err
@@ -109,7 +117,7 @@ func HandlerFollowing(s *State, _ Command, currentUser database.User) error {
 
 func HandlerUnfollow(s *State, cmd Command, currentUser database.User) error {
 	if len(cmd.Args) < 1 {
-		return fmt.Errorf("usage: unfollow <feed_url>\n")
+		return fmt.Errorf("usage: unfollow <url>")
 	}
 
 	feedURL := cmd.Args[0]
