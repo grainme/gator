@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/grainme/gator/internal"
+	"github.com/grainme/gator/internal/cli"
 	"github.com/grainme/gator/internal/config"
 	"github.com/grainme/gator/internal/database"
 	_ "github.com/lib/pq"
@@ -18,8 +18,8 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
-	commands := internal.Commands{
-		RegistredCommands: map[string]func(*internal.State, internal.Command) error{},
+	commands := cli.Commands{
+		RegistredCommands: map[string]func(*cli.State, cli.Command) error{},
 	}
 
 	db, err := sql.Open("postgres", cfg.DbUrl)
@@ -30,42 +30,42 @@ func main() {
 
 	dbQueries := database.New(db)
 
-	state := internal.State{
+	state := cli.State{
 		Cfg: cfg,
 		Db:  dbQueries,
 	}
 
-	if err := commands.Register("login", internal.HandlerLogin); err != nil {
+	if err := commands.Register("login", cli.HandlerLogin); err != nil {
 		log.Fatalf("error registering login command: %v", err)
 	}
-	if err := commands.Register("register", internal.HandlerRegister); err != nil {
+	if err := commands.Register("register", cli.HandlerRegister); err != nil {
 		log.Fatalf("error registering register command: %v", err)
 	}
-	if err := commands.Register("reset", internal.HandlerReset); err != nil {
+	if err := commands.Register("reset", cli.HandlerReset); err != nil {
 		log.Fatalf("error registering reset command: %v", err)
 	}
-	if err := commands.Register("users", internal.HandlerGetUsers); err != nil {
+	if err := commands.Register("users", cli.HandlerGetUsers); err != nil {
 		log.Fatalf("error registering users command: %v", err)
 	}
-	if err := commands.Register("agg", internal.HandlerAggregator); err != nil {
+	if err := commands.Register("agg", cli.HandlerAggregator); err != nil {
 		log.Fatalf("error registering agg command: %v", err)
 	}
-	if err := commands.Register("addfeed", internal.MiddlewareLoggedIn(internal.HandlerAddFeed)); err != nil {
+	if err := commands.Register("addfeed", cli.MiddlewareLoggedIn(cli.HandlerAddFeed)); err != nil {
 		log.Fatalf("error registering addfeed command: %v", err)
 	}
-	if err := commands.Register("feeds", internal.HandlerGetFeeds); err != nil {
+	if err := commands.Register("feeds", cli.HandlerGetFeeds); err != nil {
 		log.Fatalf("error registering feeds command: %v", err)
 	}
-	if err := commands.Register("follow", internal.MiddlewareLoggedIn(internal.HandlerFollow)); err != nil {
+	if err := commands.Register("follow", cli.MiddlewareLoggedIn(cli.HandlerFollow)); err != nil {
 		log.Fatalf("error registering follow command: %v", err)
 	}
-	if err := commands.Register("following", internal.MiddlewareLoggedIn(internal.HandlerFollowing)); err != nil {
+	if err := commands.Register("following", cli.MiddlewareLoggedIn(cli.HandlerFollowing)); err != nil {
 		log.Fatalf("error registering following command: %v", err)
 	}
-	if err := commands.Register("unfollow", internal.MiddlewareLoggedIn(internal.HandlerUnfollow)); err != nil {
+	if err := commands.Register("unfollow", cli.MiddlewareLoggedIn(cli.HandlerUnfollow)); err != nil {
 		log.Fatalf("error registering unfollow command: %v", err)
 	}
-	if err := commands.Register("browse", internal.MiddlewareLoggedIn(internal.HandlerBrowse)); err != nil {
+	if err := commands.Register("browse", cli.MiddlewareLoggedIn(cli.HandlerBrowse)); err != nil {
 		log.Fatalf("error registering browse command: %v", err)
 	}
 
@@ -74,7 +74,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	cmd := internal.Command{
+	cmd := cli.Command{
 		Name: os.Args[1],
 		Args: os.Args[2:],
 	}

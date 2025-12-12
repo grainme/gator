@@ -1,4 +1,4 @@
-package internal
+package cli
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grainme/gator/internal/database"
+	"github.com/grainme/gator/internal/rss"
 )
 
 func HandlerAggregator(s *State, cmd Command) error {
@@ -43,7 +44,7 @@ func ScrapeFeeds(s *State) error {
 		return nil
 	}
 
-	feedItems, err := FetchFeed(context.Background(), feed.Url)
+	feedItems, err := rss.FetchFeed(context.Background(), feed.Url)
 	if err != nil {
 		return err
 	}

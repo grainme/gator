@@ -5,3 +5,9 @@ migrate-up:
 
 migrate-down:
 	cd sql/schema && goose postgres "$(DB_URL)" down
+
+migrate-down-all:
+	cd sql/schema && goose postgres "$(DB_URL)" down-to 0
+
+migrate-reset:
+	cd sql/schema && goose postgres "$(DB_URL)" down-to 0 && goose postgres "$(DB_URL)" up

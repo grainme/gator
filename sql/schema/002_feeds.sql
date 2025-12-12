@@ -9,4 +9,4 @@ CREATE TABLE feeds (
 );
 
 -- +goose Down
-DROP TABLE feeds;
+DROP TABLE feeds CASCADE;
