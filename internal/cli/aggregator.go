@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/grainme/gator/internal/database"
 	"github.com/grainme/gator/internal/rss"
 	"github.com/lib/pq"
@@ -21,7 +22,7 @@ func HandlerAggregator(s *State, cmd Command) error {
 	if err != nil {
 		return fmt.Errorf("invalid duration format: %w", err)
 	}
-	fmt.Printf("Collecting feeds every %s...\n", timeBetweenReqs)
+	slog.Info("starting feed collection", "interval", timeBetweenReqs)
 
 	ticker := time.NewTicker(timeBetweenReqs)
 	for ; ; <-ticker.C {
@@ -38,8 +39,7 @@ func ScrapeFeeds(s *State) error {
 		return err
 	}
 
-	fmt.Println("----------------------")
-	fmt.Println("Found a feed to fetch!")
+	slog.Info("found feed to fetch", "name", feed.Name, "url", feed.Url)
 	err = s.Db.MarkFeedFetched(context.Background(), feed.ID)
 	if err != nil {
 		return nil
@@ -58,7 +58,7 @@ func ScrapeFeeds(s *State) error {
 			return err
 		}
 		post := database.CreatePostParams{
-			// ID:          uuid.New(),
+			ID:          uuid.New(),
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
 			Title:       item.Title,
@@ -72,7 +72,7 @@ func ScrapeFeeds(s *State) error {
 			// unique_violation (e.g: duplicate)
 			var pqErr *pq.Error
 			if errors.As(err, &pqErr) && pqErr.Code == "23505" {
-				log.Printf("Post already exists, skipping: %s", item.Link)
+				slog.Info("post already exists, skipping", "url", item.Link)
 				continue
 			}
 		}

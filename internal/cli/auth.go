@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,7 +16,7 @@ func HandlerLogin(s *State, cmd Command) error {
 	}
 
 	username := cmd.Args[0]
-	_, err := s.Db.GetUser(context.Background(), username)
+	user, err := s.Db.GetUser(context.Background(), username)
 	if err != nil {
 		return fmt.Errorf("user does not exist in the db: %w", err)
 	}
@@ -25,7 +26,7 @@ func HandlerLogin(s *State, cmd Command) error {
 		return fmt.Errorf("couldn't set current user: %w", err)
 	}
 
-	fmt.Println("User has been set successfuly")
+	slog.Info("user logged in", "name", user.Name)
 	return nil
 }
 
@@ -59,7 +60,7 @@ func HandlerRegister(s *State, cmd Command) error {
 		return fmt.Errorf("couldn't set current user: %w", err)
 	}
 
-	fmt.Printf("User has been created successfuly: %v\n", dbUser)
+	slog.Info("user created", "name", dbUser.Name, "id", dbUser.ID)
 	return nil
 }
 
@@ -73,7 +74,7 @@ func HandlerReset(s *State, cmd Command) error {
 		return fmt.Errorf("could not delete all users from the db: %v", err)
 	}
 
-	fmt.Printf("Successfuly deleted %d rows from USERS table\n", rowsDeleted)
+	slog.Info("users reset", "rows_deleted", rowsDeleted)
 	return nil
 }
 
@@ -88,11 +89,8 @@ func HandlerGetUsers(s *State, cmd Command) error {
 	}
 
 	for _, user := range dbUsers {
-		if s.Cfg.CurrentUserName == user.Name {
-			fmt.Printf("* %s (current)\n", user.Name)
-			continue
-		}
-		fmt.Printf("* %s\n", user.Name)
+		isCurrent := s.Cfg.CurrentUserName == user.Name
+		slog.Info("user", "name", user.Name, "current", isCurrent)
 	}
 
 	return nil

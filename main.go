@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
 	"github.com/grainme/gator/internal/cli"
@@ -13,6 +14,9 @@ import (
 )
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
 	cfg, err := config.Read()
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
@@ -24,12 +28,11 @@ func main() {
 
 	db, err := sql.Open("postgres", cfg.DbUrl)
 	if err != nil {
-		log.Fatalf("error connecting to postgres: %v", err)
+		log.Fatalf("error opening database: %v", err)
 	}
 	defer db.Close()
 
 	dbQueries := database.New(db)
-
 	state := cli.State{
 		Cfg: cfg,
 		Db:  dbQueries,

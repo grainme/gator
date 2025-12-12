@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,7 +25,7 @@ func HandlerGetFeeds(s *State, cmd Command) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println(feed.Name, feed.Url, user.Name)
+		slog.Info("feed", "name", feed.Name, "url", feed.Url, "user", user.Name)
 	}
 
 	return nil
@@ -63,7 +64,7 @@ func HandlerAddFeed(s *State, cmd Command, currentUser database.User) error {
 		return err
 	}
 
-	fmt.Println(feedCreated)
+	slog.Info("feed created", "name", feedCreated.Name, "url", feedCreated.Url, "id", feedCreated.ID)
 	return nil
 }
 
@@ -90,7 +91,7 @@ func HandlerFollow(s *State, cmd Command, currentUser database.User) error {
 		return err
 	}
 
-	fmt.Println(createdFeedFollow.Feedname, createdFeedFollow.Username)
+	slog.Info("feed followed", "feed", createdFeedFollow.Feedname, "user", createdFeedFollow.Username)
 	return nil
 }
 
@@ -109,7 +110,7 @@ func HandlerFollowing(s *State, cmd Command, currentUser database.User) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println(feedFollowExtraInfos.Feedname)
+		slog.Info("following", "feed", feedFollowExtraInfos.Feedname)
 	}
 
 	return nil

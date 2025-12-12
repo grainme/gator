@@ -3,19 +3,25 @@ package cli
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strconv"
 
 	"github.com/grainme/gator/internal/database"
 )
 
+const (
+	DefaultPostLimit = 2
+)
+
 func HandlerBrowse(s *State, cmd Command, currentUser database.User) error {
-	limit := 2
+	limit := DefaultPostLimit
+
 	if len(cmd.Args) == 1 {
-		arg, err := strconv.Atoi(cmd.Args[0])
-		if err != nil {
+		if userLimit, err := strconv.Atoi(cmd.Args[0]); err == nil && userLimit > 0 {
+			limit = userLimit
+		} else {
 			return err
 		}
-		limit = arg
 	} else if len(cmd.Args) > 1 {
 		return fmt.Errorf("usage: %s <limit>", cmd.Name)
 	}
@@ -29,11 +35,11 @@ func HandlerBrowse(s *State, cmd Command, currentUser database.User) error {
 	}
 
 	if len(posts) == 0 {
-		fmt.Println("No posts available!")
+		slog.Info("no posts available")
 		return nil
 	}
 	for _, post := range posts {
-		fmt.Println(post.Title)
+		slog.Info("post", "title", post.Title, "url", post.Url, "description", post.Description, "published_at", post.PublishedAt)
 	}
 	return nil
 }
